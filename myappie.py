@@ -12,7 +12,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 st.set_page_config(
     page_title="Data Ocean",
-    page_icon=None
+    page_icon= '🔥'
 )
 
 # _________________ Web Page Info Section _____________________ #
