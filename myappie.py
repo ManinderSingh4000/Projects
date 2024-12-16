@@ -17,7 +17,7 @@ st.set_page_config(
 
 # _________________ Web Page Info Section _____________________ #
 
-st.title(":red[Data] :blue[Analytic] :orange[Portal]")
+st.title(":red[Data] :blue[Analytic] :orange[Portal & Machine Learning]")
 st.header(":rainbow[Explore Data With Ease]")
 
 # __________________ File Upload Section _________________ #
@@ -204,8 +204,6 @@ if file is not None:
                 
                 st.write("Mean Squared Error:", mean_squared_error(y_test, predictions)," | " , " R2 Score :" ,r2_score(y_test,predictions)*100)
 
-
-        
 
     except Exception as e:
         st.error(f"An error occurred: {e}")
