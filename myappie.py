@@ -101,8 +101,6 @@ if file is not None:
                 st.success('Duplicate rows removed!', icon='🔥')
 
 
-
-
         # __________________ Value Count Section _____________________ #
 
         st.subheader(':rainbow[Column Value Count]',divider='green')
