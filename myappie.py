@@ -5,10 +5,17 @@ import numpy as np
 import plotly.express as px
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
 
-# ________________ Page Configuration Section _____________  # 
+# ________________ Page Configuration Section _____________  #
 
 st.set_page_config(
     page_title="Data Ocean",
@@ -185,8 +192,9 @@ if file is not None:
         #_________________ Machine Learning_______________ #
 
         st.subheader(":orange[Basic Machine Learning]",divider='green')
-        ml_task = st.selectbox("Select ML Task", ["None", "Linear Regression"])
-        if ml_task == "Linear Regression":
+        ml_task = st.selectbox("Select ML Task", ["None", "SVM", "Logistic Regression", "Decision Tree", "K-Nearest Neighbors"])
+
+        if ml_task != "None":
             target_col = st.selectbox("Select Target Column", data.columns)
             feature_cols = st.multiselect("Select Feature Columns", data.columns)
 
@@ -194,14 +202,47 @@ if file is not None:
                 X = data[feature_cols]
                 y = data[target_col]
 
+                # Handle Preprocessing (Categorical and Numeric Data)
+                numeric_features = X.select_dtypes(include=['int64', 'float64']).columns
+                categorical_features = X.select_dtypes(include=['object']).columns
+
+                numeric_transformer = Pipeline(steps=[
+                    ('imputer', SimpleImputer(strategy='mean')),  # Handle missing data
+                    ('scaler', StandardScaler())  # Normalize numerical data
+                ])
+
+                categorical_transformer = Pipeline(steps=[
+                    ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),  # Handle missing data
+                    ('onehot', OneHotEncoder(handle_unknown='ignore'))  # One-Hot Encode categorical features
+                ])
+
+                preprocessor = ColumnTransformer(
+                    transformers=[
+                        ('num', numeric_transformer, numeric_features),
+                        ('cat', categorical_transformer, categorical_features)
+                    ]
+                )
+
+                # Create model pipeline based on selected task
+                if ml_task == "SVM":
+                    model = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', SVC())])
+                elif ml_task == "Logistic Regression":
+                    model = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', LogisticRegression())])
+                elif ml_task == "Decision Tree":
+                    model = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', DecisionTreeClassifier())])
+                elif ml_task == "K-Nearest Neighbors":
+                    model = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', KNeighborsClassifier())])
+
+                # Split the data
                 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-                
-                model = LinearRegression()
+
+                # Train the model
                 model.fit(X_train, y_train)
-                predictions = model.predict(X_test)
+                y_pred = model.predict(X_test)
+
+                # Evaluate the model
+                accuracy = accuracy_score(y_test, y_pred)
+                st.write(f"Model Accuracy: {accuracy * 100:.2f}%")
                 
-                st.write("Mean Squared Error:", mean_squared_error(y_test, predictions)," | " , " R2 Score :" ,r2_score(y_test,predictions)*100)
-
-
     except Exception as e:
         st.error(f"An error occurred: {e}")
