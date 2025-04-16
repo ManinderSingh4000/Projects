@@ -354,9 +354,9 @@ if file is not None:
         
         # Common preprocessing
         if model_selection in ["Linear Regression", "Polynomial Regression", "SVM", "Decision Tree", "Random Forest", "KMeans Clustering"]:
-            if 'target' in df.columns:
-                y = df['target']
-                X = df.drop(columns='target')
+            if 'target' in data.columns:
+                y = data['target']
+                X = data.drop(columns='target')
             else:
                 st.warning("Please ensure your dataset has a column named 'target'")
                 st.stop()
