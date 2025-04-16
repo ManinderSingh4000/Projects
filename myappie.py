@@ -243,6 +243,10 @@ if file is not None:
                 # Evaluate the model
                 accuracy = accuracy_score(y_test, y_pred)
                 st.write(f"Model Accuracy: {accuracy * 100:.2f}%")
+
+        st.subheader(":bar_chart: Model Evaluation Graphs")
+        if ml_task in ['Logistic Regression', 'Decision Tree']:
+            pass
                 
     except Exception as e:
         st.error(f"An error occurred: {e}")
