@@ -245,8 +245,96 @@ if file is not None:
                 st.write(f"Model Accuracy: {accuracy * 100:.2f}%")
 
         st.subheader(":bar_chart: Model Evaluation Graphs")
-        if ml_task in ['Logistic Regression', 'Decision Tree']:
-            pass
+        model_selection = st.selectbox(' Select The Model :', ['Linear Regression' ,'Polynomial Regression','SVM','Decision Tree','KMeans Clustering'])
+
+        if ml_task == "Linear Regression":
+            model = Pipeline(steps=[('preprocessor', preprocessor), ('regressor', LinearRegression())])
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            accuracy = model.score(X_test, y_test)
+        
+            st.write(f"Model R² Score: {accuracy * 100:.2f}%")
+        
+            fig, ax = plt.subplots()
+            ax.scatter(y_test, y_pred)
+            ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
+            ax.set_xlabel("Actual")
+            ax.set_ylabel("Predicted")
+            st.pyplot(fig)
+
+        from sklearn.preprocessing import PolynomialFeatures
+        from sklearn.pipeline import make_pipeline
+
+        if ml_task == "Polynomial Regression":
+            degree = st.slider("Choose Degree", 2, 10, 2)
+            model = make_pipeline(PolynomialFeatures(degree), LinearRegression())
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+        
+            fig, ax = plt.subplots()
+            ax.scatter(X_test.iloc[:, 0], y_test, color='blue', label='Actual')
+            ax.scatter(X_test.iloc[:, 0], y_pred, color='red', label='Predicted')
+            ax.set_title('Polynomial Fit')
+            ax.legend()
+            st.pyplot(fig)
+
+        from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+        import seaborn as sns
+        
+        cm = confusion_matrix(y_test, y_pred)
+        st.subheader("Confusion Matrix")
+        
+        fig, ax = plt.subplots()
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y), yticklabels=np.unique(y))
+        ax.set_xlabel('Predicted')
+        ax.set_ylabel('Actual')
+        st.pyplot(fig)
+
+        from mlxtend.plotting import plot_decision_regions
+
+        if ml_task == "SVM" and len(feature_cols) == 2:
+            X_combined = pd.concat([X_train, X_test])
+            y_combined = pd.concat([y_train, y_test])
+        
+            model.fit(X_combined, y_combined)
+            fig, ax = plt.subplots()
+            plot_decision_regions(X_combined.values, y_combined.values, clf=model.named_steps['classifier'], legend=2)
+            ax.set_title("SVM Decision Regions")
+            st.pyplot(fig)
+
+        from sklearn.tree import plot_tree
+
+        if ml_task == "Decision Tree":
+            fig, ax = plt.subplots(figsize=(15, 10))
+            plot_tree(model.named_steps['classifier'], filled=True, feature_names=feature_cols, class_names=True)
+            st.pyplot(fig)
+        
+        elif ml_task == "Random Forest":
+            fig, ax = plt.subplots(figsize=(15, 10))
+            plot_tree(model.named_steps['classifier'].estimators_[0], filled=True, feature_names=feature_cols, class_names=True)
+            st.pyplot(fig)
+
+        from sklearn.cluster import KMeans
+        from sklearn.decomposition import PCA
+        
+        if ml_task == "KMeans Clustering":
+            n_clusters = st.slider("Number of Clusters", 2, 10, 3)
+            kmeans = KMeans(n_clusters=n_clusters)
+            X_scaled = StandardScaler().fit_transform(X)
+            y_kmeans = kmeans.fit_predict(X_scaled)
+        
+            pca = PCA(n_components=2)
+            reduced = pca.fit_transform(X_scaled)
+        
+            fig, ax = plt.subplots()
+            scatter = ax.scatter(reduced[:, 0], reduced[:, 1], c=y_kmeans, cmap='viridis')
+            ax.set_title("Cluster Visualization (PCA)")
+            st.pyplot(fig)
+        
+
+
+
+
                 
     except Exception as e:
         st.error(f"An error occurred: {e}")
