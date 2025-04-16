@@ -340,7 +340,7 @@ if file is not None:
                         # Apply any needed numeric/categorical transformations here
                         # e.g. preprocessor.fit_transform(X)
             
-                        k = st.slider("Select number of clusters (k)", 2, 10)
+                        k = st.slider("Select number of clusters (k)", 2, 10 , key="new_best")
                         model = KMeans(n_clusters=k)
                         pred = model.fit_predict(X)
             
