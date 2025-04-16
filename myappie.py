@@ -324,18 +324,45 @@ if file is not None:
                         st.warning("SVM visualization supports only 2 features after encoding. Your selection resulted in "
                                    + str(X_transformed.shape[1]) + " features.")
         
-                elif model_selection == "KMeans Clustering":
-                    k = st.slider("Select number of clusters (k)", 2, 10)
-                    model = KMeans(n_clusters=k)
-                    pred = model.fit_predict(X_transformed)
-                    # For visualization, check if we have at least two features
-                    if X_transformed.shape[1] >= 2:
-                        fig = px.scatter(x=X_transformed[:, 0], y=X_transformed[:, 1], color=pred.astype(str),
-                                         title="KMeans Clustering", labels={'color': 'Cluster'})
-                        st.plotly_chart(fig)
-                    else:
-                        st.warning("KMeans clustering visualization requires at least 2 features.")
                 
+                   
+                elif model_selection == "KMeans Clustering":
+                    # KMeans is UNSUPERVISED: no target column needed
+                    feature_cols = st.multiselect(
+                        "Select Feature Columns",
+                        data.columns.tolist(),
+                        key='features_eval'
+                    )
+                    
+                    if feature_cols:
+                        X = data[feature_cols]
+                        
+                        # Apply any needed numeric/categorical transformations here
+                        # e.g. preprocessor.fit_transform(X)
+            
+                        k = st.slider("Select number of clusters (k)", 2, 10)
+                        model = KMeans(n_clusters=k)
+                        pred = model.fit_predict(X)
+            
+                        # For a simple 2D scatter plot, we need at least two columns
+                        if len(feature_cols) >= 2:
+                            fig = px.scatter(
+                                x=X[feature_cols[0]],
+                                y=X[feature_cols[1]],
+                                color=pred.astype(str),
+                                title="KMeans Clustering"
+                            )
+                            st.plotly_chart(fig)
+                        else:
+                            st.warning("Select at least 2 features for a 2D scatter plot.")
+                else:
+                    # For regression/classification, continue as before:
+                    target_col = st.selectbox("Select Target Column", data.columns.tolist())
+                    feature_cols = st.multiselect("Select Feature Columns", data.columns.tolist())
+                    
+                    # Proceed with the rest of your pipeline
+                    # (train_test_split, model.fit, etc.)
+                            
                     
     except Exception as e:
         st.error(f"An error occurred: {e}")
