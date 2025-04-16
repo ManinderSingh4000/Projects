@@ -335,7 +335,7 @@ if file is not None:
         #     ax.set_title("Cluster Visualization (PCA)")
         #     st.pyplot(fig)
         
-
+        
         from sklearn.linear_model import LinearRegression
         from sklearn.preprocessing import PolynomialFeatures, StandardScaler
         from sklearn.pipeline import make_pipeline, Pipeline
@@ -353,255 +353,115 @@ if file is not None:
         import streamlit as st
         
         # Common preprocessing
-       from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import PolynomialFeatures, StandardScaler
-from sklearn.pipeline import make_pipeline, Pipeline
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_score
-from sklearn.svm import SVC
-from sklearn.tree import plot_tree
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-from mlxtend.plotting import plot_decision_regions
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import streamlit as st
-
-# Common preprocessing
-if model_selection in ["Linear Regression", "Polynomial Regression", "SVM", "Decision Tree", "Random Forest", "KMeans Clustering"]:
-    if 'target' in df.columns:
-        y = df['target']
-        X = df.drop(columns='target')
-    else:
-        st.warning("Please ensure your dataset has a column named 'target'")
-        st.stop()
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Linear Regression
-if model_selection == "Linear Regression":
-    model = Pipeline(steps=[('scaler', StandardScaler()), ('regressor', LinearRegression())])
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    r2 = model.score(X_test, y_test)
-    st.success(f"Model R² Score: {r2 * 100:.2f}%")
-
-    fig, ax = plt.subplots()
-    ax.scatter(y_test, y_pred)
-    ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
-    ax.set_xlabel("Actual")
-    ax.set_ylabel("Predicted")
-    st.pyplot(fig)
-
-# Polynomial Regression
-elif model_selection == "Polynomial Regression":
-    degree = st.slider("Choose Degree", 2, 10, 2)
-    model = make_pipeline(PolynomialFeatures(degree), LinearRegression())
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    st.success("Polynomial Regression trained.")
-
-    fig, ax = plt.subplots()
-    ax.scatter(X_test.iloc[:, 0], y_test, color='blue', label='Actual')
-    ax.scatter(X_test.iloc[:, 0], y_pred, color='red', label='Predicted')
-    ax.set_title('Polynomial Fit')
-    ax.legend()
-    st.pyplot(fig)
-
-# SVM (Only 2 features)
-elif model_selection == "SVM":
-    if len(X.columns) != 2:
-        st.warning("SVM visualization only supports 2 feature columns.")
-    else:
-        model = Pipeline(steps=[('scaler', StandardScaler()), ('classifier', SVC(kernel='linear'))])
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        st.success(f"SVM Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-
-        if st.checkbox("Show Decision Regions"):
-            X_combined = pd.concat([X_train, X_test])
-            y_combined = pd.concat([y_train, y_test])
+        if model_selection in ["Linear Regression", "Polynomial Regression", "SVM", "Decision Tree", "Random Forest", "KMeans Clustering"]:
+            if 'target' in df.columns:
+                y = df['target']
+                X = df.drop(columns='target')
+            else:
+                st.warning("Please ensure your dataset has a column named 'target'")
+                st.stop()
+        
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        
+        # Linear Regression
+        if model_selection == "Linear Regression":
+            model = Pipeline(steps=[('scaler', StandardScaler()), ('regressor', LinearRegression())])
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            r2 = model.score(X_test, y_test)
+            st.success(f"Model R² Score: {r2 * 100:.2f}%")
+        
             fig, ax = plt.subplots()
-            plot_decision_regions(X_combined.values, y_combined.values, clf=model.named_steps['classifier'], legend=2)
-            ax.set_title("SVM Decision Regions")
+            ax.scatter(y_test, y_pred)
+            ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
+            ax.set_xlabel("Actual")
+            ax.set_ylabel("Predicted")
+            st.pyplot(fig)
+        
+        # Polynomial Regression
+        elif model_selection == "Polynomial Regression":
+            degree = st.slider("Choose Degree", 2, 10, 2)
+            model = make_pipeline(PolynomialFeatures(degree), LinearRegression())
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            st.success("Polynomial Regression trained.")
+        
+            fig, ax = plt.subplots()
+            ax.scatter(X_test.iloc[:, 0], y_test, color='blue', label='Actual')
+            ax.scatter(X_test.iloc[:, 0], y_pred, color='red', label='Predicted')
+            ax.set_title('Polynomial Fit')
+            ax.legend()
+            st.pyplot(fig)
+        
+        # SVM (Only 2 features)
+        elif model_selection == "SVM":
+            if len(X.columns) != 2:
+                st.warning("SVM visualization only supports 2 feature columns.")
+            else:
+                model = Pipeline(steps=[('scaler', StandardScaler()), ('classifier', SVC(kernel='linear'))])
+                model.fit(X_train, y_train)
+                y_pred = model.predict(X_test)
+                st.success(f"SVM Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
+        
+                if st.checkbox("Show Decision Regions"):
+                    X_combined = pd.concat([X_train, X_test])
+                    y_combined = pd.concat([y_train, y_test])
+                    fig, ax = plt.subplots()
+                    plot_decision_regions(X_combined.values, y_combined.values, clf=model.named_steps['classifier'], legend=2)
+                    ax.set_title("SVM Decision Regions")
+                    st.pyplot(fig)
+        
+        # Decision Tree
+        elif model_selection == "Decision Tree":
+            model = Pipeline(steps=[('scaler', StandardScaler()), ('classifier', DecisionTreeClassifier())])
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            st.success(f"Decision Tree Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
+        
+            fig, ax = plt.subplots(figsize=(15, 10))
+            plot_tree(model.named_steps['classifier'], filled=True, feature_names=X.columns, class_names=[str(c) for c in np.unique(y)])
+            st.pyplot(fig)
+        
+        # Random Forest
+        elif model_selection == "Random Forest":
+            model = Pipeline(steps=[('scaler', StandardScaler()), ('classifier', RandomForestClassifier(n_estimators=100))])
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            st.success(f"Random Forest Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
+        
+            fig, ax = plt.subplots(figsize=(15, 10))
+            plot_tree(model.named_steps['classifier'].estimators_[0], filled=True, feature_names=X.columns, class_names=[str(c) for c in np.unique(y)])
+            st.pyplot(fig)
+        
+        # KMeans Clustering
+        elif model_selection == "KMeans Clustering":
+            n_clusters = st.slider("Number of Clusters", 2, 10, 3)
+            scaler = StandardScaler()
+            X_scaled = scaler.fit_transform(X)
+        
+            kmeans = KMeans(n_clusters=n_clusters)
+            y_kmeans = kmeans.fit_predict(X_scaled)
+        
+            pca = PCA(n_components=2)
+            reduced = pca.fit_transform(X_scaled)
+        
+            fig, ax = plt.subplots()
+            scatter = ax.scatter(reduced[:, 0], reduced[:, 1], c=y_kmeans, cmap='viridis')
+            ax.set_title("Cluster Visualization (PCA)")
+            st.pyplot(fig)
+        
+        # Optional Confusion Matrix (Only for classifiers)
+        if model_selection in ["SVM", "Decision Tree", "Random Forest"]:
+            cm = confusion_matrix(y_test, y_pred)
+            st.subheader("Confusion Matrix")
+        
+            fig, ax = plt.subplots()
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y), yticklabels=np.unique(y))
+            ax.set_xlabel('Predicted')
+            ax.set_ylabel('Actual')
             st.pyplot(fig)
 
-# Decision Tree
-elif model_selection == "Decision Tree":
-    model = Pipeline(steps=[('scaler', StandardScaler()), ('classifier', DecisionTreeClassifier())])
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    st.success(f"Decision Tree Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-
-    fig, ax = plt.subplots(figsize=(15, 10))
-    plot_tree(model.named_steps['classifier'], filled=True, feature_names=X.columns, class_names=[str(c) for c in np.unique(y)])
-    st.pyplot(fig)
-
-# Random Forest
-elif model_selection == "Random Forest":
-    model = Pipeline(steps=[('scaler', StandardScaler()), ('classifier', RandomForestClassifier(n_estimators=100))])
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    st.success(f"Random Forest Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-
-    fig, ax = plt.subplots(figsize=(15, 10))
-    plot_tree(model.named_steps['classifier'].estimators_[0], filled=True, feature_names=X.columns, class_names=[str(c) for c in np.unique(y)])
-    st.pyplot(fig)
-
-# KMeans Clustering
-elif model_selection == "KMeans Clustering":
-    n_clusters = st.slider("Number of Clusters", 2, 10, 3)
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    kmeans = KMeans(n_clusters=n_clusters)
-    y_kmeans = kmeans.fit_predict(X_scaled)
-
-    pca = PCA(n_components=2)
-    reduced = pca.fit_transform(X_scaled)
-
-    fig, ax = plt.subplots()
-    scatter = ax.scatter(reduced[:, 0], reduced[:, 1], c=y_kmeans, cmap='viridis')
-    ax.set_title("Cluster Visualization (PCA)")
-    st.pyplot(fig)
-
-# Optional Confusion Matrix (Only for classifiers)
-if model_selection in ["SVM", "Decision Tree", "Random Forest"]:
-    cm = confusion_matrix(y_test, y_pred)
-    st.subheader("Confusion Matrix")
-
-    fig, ax = plt.subplots()
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y), yticklabels=np.unique(y))
-    ax.set_xlabel('Predicted')
-    ax.set_ylabel('Actual')
-    st.pyplot(fig)
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import PolynomialFeatures, StandardScaler
-from sklearn.pipeline import make_pipeline, Pipeline
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_score
-from sklearn.svm import SVC
-from sklearn.tree import plot_tree
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-from mlxtend.plotting import plot_decision_regions
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import streamlit as st
-
-# Common preprocessing
-if model_selection in ["Linear Regression", "Polynomial Regression", "SVM", "Decision Tree", "Random Forest", "KMeans Clustering"]:
-    if 'target' in df.columns:
-        y = df['target']
-        X = df.drop(columns='target')
-    else:
-        st.warning("Please ensure your dataset has a column named 'target'")
-        st.stop()
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Linear Regression
-if model_selection == "Linear Regression":
-    model = Pipeline(steps=[('scaler', StandardScaler()), ('regressor', LinearRegression())])
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    r2 = model.score(X_test, y_test)
-    st.success(f"Model R² Score: {r2 * 100:.2f}%")
-
-    fig, ax = plt.subplots()
-    ax.scatter(y_test, y_pred)
-    ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
-    ax.set_xlabel("Actual")
-    ax.set_ylabel("Predicted")
-    st.pyplot(fig)
-
-# Polynomial Regression
-elif model_selection == "Polynomial Regression":
-    degree = st.slider("Choose Degree", 2, 10, 2)
-    model = make_pipeline(PolynomialFeatures(degree), LinearRegression())
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    st.success("Polynomial Regression trained.")
-
-    fig, ax = plt.subplots()
-    ax.scatter(X_test.iloc[:, 0], y_test, color='blue', label='Actual')
-    ax.scatter(X_test.iloc[:, 0], y_pred, color='red', label='Predicted')
-    ax.set_title('Polynomial Fit')
-    ax.legend()
-    st.pyplot(fig)
-
-# SVM (Only 2 features)
-elif model_selection == "SVM":
-    if len(X.columns) != 2:
-        st.warning("SVM visualization only supports 2 feature columns.")
-    else:
-        model = Pipeline(steps=[('scaler', StandardScaler()), ('classifier', SVC(kernel='linear'))])
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        st.success(f"SVM Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-
-        if st.checkbox("Show Decision Regions"):
-            X_combined = pd.concat([X_train, X_test])
-            y_combined = pd.concat([y_train, y_test])
-            fig, ax = plt.subplots()
-            plot_decision_regions(X_combined.values, y_combined.values, clf=model.named_steps['classifier'], legend=2)
-            ax.set_title("SVM Decision Regions")
-            st.pyplot(fig)
-
-# Decision Tree
-elif model_selection == "Decision Tree":
-    model = Pipeline(steps=[('scaler', StandardScaler()), ('classifier', DecisionTreeClassifier())])
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    st.success(f"Decision Tree Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-
-    fig, ax = plt.subplots(figsize=(15, 10))
-    plot_tree(model.named_steps['classifier'], filled=True, feature_names=X.columns, class_names=[str(c) for c in np.unique(y)])
-    st.pyplot(fig)
-
-# Random Forest
-elif model_selection == "Random Forest":
-    model = Pipeline(steps=[('scaler', StandardScaler()), ('classifier', RandomForestClassifier(n_estimators=100))])
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    st.success(f"Random Forest Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-
-    fig, ax = plt.subplots(figsize=(15, 10))
-    plot_tree(model.named_steps['classifier'].estimators_[0], filled=True, feature_names=X.columns, class_names=[str(c) for c in np.unique(y)])
-    st.pyplot(fig)
-
-# KMeans Clustering
-elif model_selection == "KMeans Clustering":
-    n_clusters = st.slider("Number of Clusters", 2, 10, 3)
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    kmeans = KMeans(n_clusters=n_clusters)
-    y_kmeans = kmeans.fit_predict(X_scaled)
-
-    pca = PCA(n_components=2)
-    reduced = pca.fit_transform(X_scaled)
-
-    fig, ax = plt.subplots()
-    scatter = ax.scatter(reduced[:, 0], reduced[:, 1], c=y_kmeans, cmap='viridis')
-    ax.set_title("Cluster Visualization (PCA)")
-    st.pyplot(fig)
-
-# Optional Confusion Matrix (Only for classifiers)
-if model_selection in ["SVM", "Decision Tree", "Random Forest"]:
-    cm = confusion_matrix(y_test, y_pred)
-    st.subheader("Confusion Matrix")
-
-    fig, ax = plt.subplots()
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y), yticklabels=np.unique(y))
-    ax.set_xlabel('Predicted')
-    ax.set_ylabel('Actual')
-    st.pyplot(fig)
-
+       
 
                 
     except Exception as e:
