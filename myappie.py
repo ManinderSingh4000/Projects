@@ -313,16 +313,31 @@ if file is not None:
                     st.pyplot(fig)
         
                 elif model_selection == "SVM":
-                    # SVM decision region visualization supports exactly 2 features after encoding.
+    # SVM decision region visualization supports exactly 2 features after encoding.
                     if X_transformed.shape[1] == 2:
-                        model = SVC(kernel='linear')
-                        model.fit(X_transformed, y)
-                        fig, ax = plt.subplots()
-                        plot_decision_regions(X_transformed.to_numpy(), y.to_numpy(), clf=model, legend=2)
-                        st.pyplot(fig)
+                        try:
+            # Ensure inputs are NumPy arrays
+                            X_array = X_transformed if isinstance(X_transformed, np.ndarray) else X_transformed.to_numpy()
+                            y_array = y if isinstance(y, np.ndarray) else y.to_numpy().ravel()
+
+            # Convert target to integers if needed (plot_decision_regions prefers int labels)
+                            if y_array.dtype != int:
+                                y_array = y_array.astype(int)
+
+            # Fit the SVM model
+                                model = SVC(kernel='linear')
+                                model.fit(X_array, y_array)
+                    
+                                # Plot decision regions
+                                fig, ax = plt.subplots()
+                                plot_decision_regions(X_array, y_array, clf=model, legend=2)
+                                st.pyplot(fig)
+                        except Exception as e:
+                            st.error(f"Error during SVM visualization: {e}")
+
                     else:
-                        st.warning("SVM visualization supports only 2 features after encoding. Your selection resulted in "
-                                   + str(X_transformed.shape[1]) + " features.")
+                        st.warning(f"SVM visualization supports only 2 features. Your selection resulted in {X_transformed.shape[1]} features.")
+
         
                 
                    
