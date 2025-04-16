@@ -228,10 +228,11 @@ if file is not None:
                     ax.set_ylabel('Actual')
                     st.pyplot(fig)
                     
-        # ================== Model Evaluation Graphs Section ================== #
+       # ================== Model Evaluation Graphs Section ================== #
         st.subheader(":orange[bar_chart: Model Evaluation Graphs]")
-        model_selection = st.selectbox('Select The Model', ["Linear Regression", "Polynomial Regression", "Decision Tree", "Random Forest", "SVM", "KMeans Clustering" ])
-    
+        model_selection = st.selectbox('Select The Model', 
+                                       ["Linear Regression", "Polynomial Regression", "Decision Tree", "Random Forest", "SVM", "KMeans Clustering" ])
+        
         if model_selection:
             target_col = st.selectbox("Select Target Column", data.columns.tolist(), key='target_eval')
             feature_cols = st.multiselect("Select Feature Columns", data.columns.tolist(), key='features_eval')
@@ -240,57 +241,97 @@ if file is not None:
                 X = data[feature_cols]
                 y = data[target_col]
                 
+                # ---------------------- Preprocessing: Encoding Features ---------------------- #
+                # Identify numeric and categorical columns in the selected feature set
+                numeric_features = X.select_dtypes(include=['int64', 'float64']).columns.tolist()
+                categorical_features = X.select_dtypes(include=['object', 'category']).columns.tolist()
+        
+                # Define transformers for both types of features
+                numeric_transformer = Pipeline(steps=[
+                    ('imputer', SimpleImputer(strategy='mean')),
+                    ('scaler', StandardScaler())
+                ])
+                # Ensure output as a dense array by setting sparse=False
+                categorical_transformer = Pipeline(steps=[
+                    ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+                    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse=False))
+                ])
+        
+                # Combine transformers into a preprocessor
+                preprocessor = ColumnTransformer(
+                    transformers=[
+                        ('num', numeric_transformer, numeric_features),
+                        ('cat', categorical_transformer, categorical_features)
+                    ],
+                    remainder='passthrough'  # In case there are columns not captured above
+                )
+        
+                # Transform the selected features into numeric features
+                X_transformed = preprocessor.fit_transform(X)
+                
+                # ---------------------- Model Evaluation Based On User's Selection ---------------------- #
                 if model_selection == "Linear Regression":
                     model = LinearRegression()
-                    model.fit(X, y)
-                    y_pred = model.predict(X)
-                    fig = px.scatter(x=y, y=y_pred, labels={'x': 'Actual', 'y': 'Predicted'}, title="Linear Regression: Actual vs Predicted")
+                    model.fit(X_transformed, y)
+                    y_pred = model.predict(X_transformed)
+                    fig = px.scatter(x=y, y=y_pred, 
+                                     labels={'x': 'Actual', 'y': 'Predicted'}, 
+                                     title="Linear Regression: Actual vs Predicted")
                     st.plotly_chart(fig)
         
                 elif model_selection == "Polynomial Regression":
                     degree = st.slider("Select Polynomial Degree", 2, 5)
                     poly = PolynomialFeatures(degree=degree)
-                    X_poly = poly.fit_transform(X)
+                    X_poly = poly.fit_transform(X_transformed)
                     model = LinearRegression()
                     model.fit(X_poly, y)
                     y_pred = model.predict(X_poly)
-                    fig = px.scatter(x=y, y=y_pred, labels={'x': 'Actual', 'y': 'Predicted'}, title="Polynomial Regression Fit")
+                    fig = px.scatter(x=y, y=y_pred, 
+                                     labels={'x': 'Actual', 'y': 'Predicted'}, 
+                                     title="Polynomial Regression Fit")
                     st.plotly_chart(fig)
         
                 elif model_selection == "Decision Tree":
                     model = DecisionTreeClassifier()
-                    model.fit(X, y)
+                    model.fit(X_transformed, y)
                     fig, ax = plt.subplots(figsize=(12, 6))
-                    plot_tree(model, feature_names=feature_cols, class_names=True, filled=True)
+                    # Note: feature names might not directly match the one–hot encoded features
+                    plot_tree(model, filled=True, fontsize=8)
                     st.pyplot(fig)
         
                 elif model_selection == "Random Forest":
                     model = RandomForestClassifier()
-                    model.fit(X, y)
-                    y_pred = model.predict(X)
+                    model.fit(X_transformed, y)
+                    y_pred = model.predict(X_transformed)
                     cm = confusion_matrix(y, y_pred)
                     fig, ax = plt.subplots()
                     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
                     st.pyplot(fig)
         
                 elif model_selection == "SVM":
-                    if len(feature_cols) == 2:
+                    # SVM decision region visualization supports exactly 2 features after encoding.
+                    if X_transformed.shape[1] == 2:
                         model = SVC(kernel='linear')
-                        model.fit(X, y)
+                        model.fit(X_transformed, y)
                         fig, ax = plt.subplots()
-                        plot_decision_regions(X.values, y.values, clf=model, legend=2)
+                        plot_decision_regions(X_transformed, y.values, clf=model, legend=2)
                         st.pyplot(fig)
                     else:
-                        st.warning("SVM visualization supports only 2 features.")
+                        st.warning("SVM visualization supports only 2 features after encoding. Your selection resulted in "
+                                   + str(X_transformed.shape[1]) + " features.")
         
                 elif model_selection == "KMeans Clustering":
                     k = st.slider("Select number of clusters (k)", 2, 10)
                     model = KMeans(n_clusters=k)
-                    pred = model.fit_predict(X)
-                    fig = px.scatter(x=X[feature_cols[0]], y=X[feature_cols[1]], color=pred.astype(str), 
-                                     title="KMeans Clustering", labels={'color': 'Cluster'})
-                    st.plotly_chart(fig)
-        
+                    pred = model.fit_predict(X_transformed)
+                    # For visualization, check if we have at least two features
+                    if X_transformed.shape[1] >= 2:
+                        fig = px.scatter(x=X_transformed[:, 0], y=X_transformed[:, 1], color=pred.astype(str),
+                                         title="KMeans Clustering", labels={'color': 'Cluster'})
+                        st.plotly_chart(fig)
+                    else:
+                        st.warning("KMeans clustering visualization requires at least 2 features.")
+                
                     
     except Exception as e:
         st.error(f"An error occurred: {e}")
