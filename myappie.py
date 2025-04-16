@@ -229,103 +229,71 @@ if file is not None:
                     st.pyplot(fig)
                     
         # ================== Model Evaluation Graphs Section ================== #
-        st.subheader(":bar_chart: Model Evaluation Graphs")
-        model_selection = st.selectbox('Select The Model', ['None', 'Linear Regression', 'Polynomial Regression', 'SVM', 'Decision Tree', 'Random Forest', 'KMeans Clustering'])
-        if model_selection != 'None':
-            if 'target' not in data.columns:
-                st.warning("To run this section, your dataset should contain a column named 'target'.")
+      st.subheader(":bar_chart: Model Evaluation Graphs")
+model_selection = st.selectbox('Select The Model', [
+    "Linear Regression", "Polynomial Regression", "Decision Tree", "Random Forest", 
+    "SVM", "KMeans Clustering"
+])
+
+if model_selection:
+    target_col = st.selectbox("Select Target Column", data.columns.tolist(), key='target_eval')
+    feature_cols = st.multiselect("Select Feature Columns", data.columns.tolist(), key='features_eval')
+    
+    if target_col and feature_cols:
+        X = data[feature_cols]
+        y = data[target_col]
+        
+        if model_selection == "Linear Regression":
+            model = LinearRegression()
+            model.fit(X, y)
+            y_pred = model.predict(X)
+            fig = px.scatter(x=y, y=y_pred, labels={'x': 'Actual', 'y': 'Predicted'}, title="Linear Regression: Actual vs Predicted")
+            st.plotly_chart(fig)
+
+        elif model_selection == "Polynomial Regression":
+            degree = st.slider("Select Polynomial Degree", 2, 5)
+            poly = PolynomialFeatures(degree=degree)
+            X_poly = poly.fit_transform(X)
+            model = LinearRegression()
+            model.fit(X_poly, y)
+            y_pred = model.predict(X_poly)
+            fig = px.scatter(x=y, y=y_pred, labels={'x': 'Actual', 'y': 'Predicted'}, title="Polynomial Regression Fit")
+            st.plotly_chart(fig)
+
+        elif model_selection == "Decision Tree":
+            model = DecisionTreeClassifier()
+            model.fit(X, y)
+            fig, ax = plt.subplots(figsize=(12, 6))
+            plot_tree(model, feature_names=feature_cols, class_names=True, filled=True)
+            st.pyplot(fig)
+
+        elif model_selection == "Random Forest":
+            model = RandomForestClassifier()
+            model.fit(X, y)
+            y_pred = model.predict(X)
+            cm = confusion_matrix(y, y_pred)
+            fig, ax = plt.subplots()
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+            st.pyplot(fig)
+
+        elif model_selection == "SVM":
+            if len(feature_cols) == 2:
+                model = SVC(kernel='linear')
+                model.fit(X, y)
+                fig, ax = plt.subplots()
+                plot_decision_regions(X.values, y.values, clf=model, legend=2)
+                st.pyplot(fig)
             else:
-                y = data['target']
-                X = data.drop(columns=['target'])
-                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-                
-                if model_selection == "Linear Regression":
-                    model = Pipeline(steps=[('scaler', StandardScaler()), ('regressor', LinearRegression())])
-                    model.fit(X_train, y_train)
-                    y_pred = model.predict(X_test)
-                    r2 = model.score(X_test, y_test)
-                    st.success(f"Linear Regression R² Score: {r2 * 100:.2f}%")
-                    fig, ax = plt.subplots()
-                    ax.scatter(y_test, y_pred)
-                    ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
-                    ax.set_xlabel("Actual")
-                    ax.set_ylabel("Predicted")
-                    st.pyplot(fig)
-                    
-                elif model_selection == "Polynomial Regression":
-                    degree = st.slider("Choose Degree", 2, 10, value=2)
-                    model = make_pipeline(PolynomialFeatures(degree), LinearRegression())
-                    model.fit(X_train, y_train)
-                    y_pred = model.predict(X_test)
-                    st.success("Polynomial Regression trained.")
-                    fig, ax = plt.subplots()
-                    # Using the first feature for visualization, if available
-                    if X_test.shape[1] > 0:
-                        ax.scatter(X_test.iloc[:, 0], y_test, color='blue', label='Actual')
-                        ax.scatter(X_test.iloc[:, 0], y_pred, color='red', label='Predicted')
-                        ax.set_title('Polynomial Fit')
-                        ax.legend()
-                    st.pyplot(fig)
-                    
-                elif model_selection == "SVM":
-                    if X.shape[1] != 2:
-                        st.warning("SVM visualization only supports exactly 2 feature columns.")
-                    else:
-                        model = Pipeline(steps=[('scaler', StandardScaler()), ('classifier', SVC(kernel='linear'))])
-                        model.fit(X_train, y_train)
-                        y_pred = model.predict(X_test)
-                        st.success(f"SVM Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-                        if st.checkbox("Show Decision Regions for SVM"):
-                            X_combined = pd.concat([X_train, X_test])
-                            y_combined = pd.concat([y_train, y_test])
-                            fig, ax = plt.subplots()
-                            plot_decision_regions(X_combined.values, y_combined.values, clf=model.named_steps['classifier'], legend=2)
-                            ax.set_title("SVM Decision Regions")
-                            st.pyplot(fig)
-                            
-                elif model_selection == "Decision Tree":
-                    model = Pipeline(steps=[('scaler', StandardScaler()), ('classifier', DecisionTreeClassifier())])
-                    model.fit(X_train, y_train)
-                    y_pred = model.predict(X_test)
-                    st.success(f"Decision Tree Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-                    fig, ax = plt.subplots(figsize=(15, 10))
-                    plot_tree(model.named_steps['classifier'], filled=True, feature_names=X.columns, 
-                              class_names=[str(c) for c in np.unique(y)])
-                    st.pyplot(fig)
-                    
-                elif model_selection == "Random Forest":
-                    model = Pipeline(steps=[('scaler', StandardScaler()), ('classifier', RandomForestClassifier(n_estimators=100))])
-                    model.fit(X_train, y_train)
-                    y_pred = model.predict(X_test)
-                    st.success(f"Random Forest Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-                    fig, ax = plt.subplots(figsize=(15, 10))
-                    # Visualize one tree from the forest
-                    plot_tree(model.named_steps['classifier'].estimators_[0], filled=True, feature_names=X.columns, 
-                              class_names=[str(c) for c in np.unique(y)])
-                    st.pyplot(fig)
-                    
-                elif model_selection == "KMeans Clustering":
-                    n_clusters = st.slider("Number of Clusters", 2, 10, value=3)
-                    scaler = StandardScaler()
-                    X_scaled = scaler.fit_transform(X)
-                    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-                    clusters = kmeans.fit_predict(X_scaled)
-                    pca = PCA(n_components=2)
-                    X_reduced = pca.fit_transform(X_scaled)
-                    fig, ax = plt.subplots()
-                    ax.scatter(X_reduced[:, 0], X_reduced[:, 1], c=clusters, cmap='viridis')
-                    ax.set_title("KMeans Clustering (PCA Reduced)")
-                    st.pyplot(fig)
-                    
-                # Show confusion matrix for classifier models (if applicable)
-                if model_selection in ["SVM", "Decision Tree", "Random Forest"]:
-                    cm = confusion_matrix(y_test, y_pred)
-                    st.subheader("Confusion Matrix")
-                    fig, ax = plt.subplots()
-                    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-                    ax.set_xlabel('Predicted')
-                    ax.set_ylabel('Actual')
-                    st.pyplot(fig)
+                st.warning("SVM visualization supports only 2 features.")
+
+        elif model_selection == "KMeans Clustering":
+            k = st.slider("Select number of clusters (k)", 2, 10)
+            model = KMeans(n_clusters=k)
+            pred = model.fit_predict(X)
+            fig = px.scatter(x=X[feature_cols[0]], y=X[feature_cols[1]], color=pred.astype(str), 
+                             title="KMeans Clustering", labels={'color': 'Cluster'})
+            st.plotly_chart(fig)
+
                     
     except Exception as e:
         st.error(f"An error occurred: {e}")
