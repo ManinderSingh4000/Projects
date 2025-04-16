@@ -12,7 +12,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.cluster import KMeans
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OneHotEncoder, StandardScaler, PolynomialFeatures
+from sklearn.preprocessing import OneHotEncoder, LabelEncoding, StandardScaler, PolynomialFeatures
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline, make_pipeline
 
@@ -254,7 +254,7 @@ if file is not None:
                 # Ensure output as a dense array by setting sparse=False
                 categorical_transformer = Pipeline(steps=[
                     ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
-                    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse=False))
+                    ('onehot' , LabelEncoding())
                 ])
         
                 # Combine transformers into a preprocessor
@@ -267,7 +267,7 @@ if file is not None:
                 )
         
                 # Transform the selected features into numeric features
-                X_transformed = preprocessor.fit_transform(X)
+                X_transformed = pd.DataFrame( preprocessor.fit_transform(X) , columns=data.columns())
                 
                 # ---------------------- Model Evaluation Based On User's Selection ---------------------- #
                 if model_selection == "Linear Regression":
