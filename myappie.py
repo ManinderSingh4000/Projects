@@ -229,7 +229,7 @@ if file is not None:
                     st.pyplot(fig)
                     
         # ================== Model Evaluation Graphs Section ================== #
-    st.subheader(":bar_chart: Model Evaluation Graphs")
+    st.subheader(":orange[bar_chart: Model Evaluation Graphs]")
     model_selection = st.selectbox('Select The Model', ["Linear Regression", "Polynomial Regression", "Decision Tree", "Random Forest", "SVM", "KMeans Clustering" ])
 
     if model_selection:
