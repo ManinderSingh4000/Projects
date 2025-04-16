@@ -254,7 +254,7 @@ if file is not None:
                 # Ensure output as a dense array by setting sparse=False
                 categorical_transformer = Pipeline(steps=[
                     ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
-                    ('onehot' , LabelEncoding())
+                    ('onehot' , LabelEncoder())
                 ])
         
                 # Combine transformers into a preprocessor
