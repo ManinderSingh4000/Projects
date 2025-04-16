@@ -318,7 +318,7 @@ if file is not None:
                         model = SVC(kernel='linear')
                         model.fit(X_transformed, y)
                         fig, ax = plt.subplots()
-                        plot_decision_regions(X_transformed.to_array(), y.to_array(), clf=model, legend=2)
+                        plot_decision_regions(X_transformed.to_numpy(), y.to_numpy(), clf=model, legend=2)
                         st.pyplot(fig)
                     else:
                         st.warning("SVM visualization supports only 2 features after encoding. Your selection resulted in "
