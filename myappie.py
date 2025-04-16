@@ -270,7 +270,7 @@ if file is not None:
                 )
                 
                 X_transformed_array = preprocessor.fit_transform(X)
-                X_transformed = pd.DataFrame(X_transformed_array, reset_index=True)
+                X_transformed = pd.DataFrame(X_transformed_array)
 
                 
                 # ---------------------- Model Evaluation Based On User's Selection ---------------------- #
