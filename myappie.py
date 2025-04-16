@@ -296,7 +296,7 @@ if file is not None:
                     st.plotly_chart(fig)
         
                 elif model_selection == "Decision Tree":
-                    model = DecisionTreeClassifier()
+                    model = DecisionTreeClassifier(max_depth=3)
                     model.fit(X_transformed, y)
                     fig, ax = plt.subplots(figsize=(12, 6))
                     # Note: feature names might not directly match the one–hot encoded features
