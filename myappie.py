@@ -247,6 +247,10 @@ if file is not None:
         st.subheader(":bar_chart: Model Evaluation Graphs")
         model_selection = st.selectbox(' Select The Model :', ['Linear Regression' ,'Polynomial Regression','SVM','Decision Tree','KMeans Clustering'])
 
+        from sklearn.linear_model import LinearRegression
+        import seaborn as sns
+        
+        
         if ml_task == "Linear Regression":
             model = Pipeline(steps=[('preprocessor', preprocessor), ('regressor', LinearRegression())])
             model.fit(X_train, y_train)
