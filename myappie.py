@@ -340,7 +340,7 @@ if file is not None:
                         # Apply any needed numeric/categorical transformations here
                         # e.g. preprocessor.fit_transform(X)
             
-                        k = st.slider("Select number of clusters (k)", 2, 10 , key="new_best")
+                        k = st.slider("Select number of clusters (k)", 2, 10 )
                         model = KMeans(n_clusters=k)
                         pred = model.fit_predict(X)
             
@@ -357,8 +357,7 @@ if file is not None:
                             st.warning("Select at least 2 features for a 2D scatter plot.")
                 else:
                     # For regression/classification, continue as before:
-                    target_col = st.selectbox("Select Target Column", data.columns.tolist())
-                    feature_cols = st.multiselect("Select Feature Columns", data.columns.tolist())
+                    pass
                     
                     # Proceed with the rest of your pipeline
                     # (train_test_split, model.fit, etc.)
