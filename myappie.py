@@ -331,7 +331,7 @@ if file is not None:
                     feature_cols = st.multiselect(
                         "Select Feature Columns",
                         data.columns.tolist(),
-                        key='features_eval'
+                        key='features_kmeans'
                     )
                     
                     if feature_cols:
