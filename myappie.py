@@ -258,7 +258,7 @@ if file is not None:
                 
                 categorical_transformer = Pipeline(steps=[
                     ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
-                    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse=False))
+                    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
                 ])
                 
                 preprocessor = ColumnTransformer(
