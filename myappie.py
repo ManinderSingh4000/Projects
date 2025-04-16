@@ -267,7 +267,7 @@ if file is not None:
                 )
         
                 # Transform the selected features into numeric features
-                X_transformed = pd.DataFrame( preprocessor.fit_transform(X) , columns=data.columns())
+                X_transformed = pd.DataFrame( preprocessor.fit_transform(X) , columns=data.columns() , index=False)
                 
                 # ---------------------- Model Evaluation Based On User's Selection ---------------------- #
                 if model_selection == "Linear Regression":
