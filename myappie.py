@@ -251,23 +251,27 @@ if file is not None:
                     ('imputer', SimpleImputer(strategy='mean')),
                     ('scaler', StandardScaler())
                 ])
-                # Ensure output as a dense array by setting sparse=False
+
+                # 
+                
+                from sklearn.preprocessing import OneHotEncoder  # use this instead of LabelEncoder
+                
                 categorical_transformer = Pipeline(steps=[
                     ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
-                    ('onehot' , LabelEncoder())
+                    ('onehot', OneHotEncoder(handle_unknown='ignore', sparse=False))
                 ])
-        
-                # Combine transformers into a preprocessor
+                
                 preprocessor = ColumnTransformer(
                     transformers=[
                         ('num', numeric_transformer, numeric_features),
                         ('cat', categorical_transformer, categorical_features)
                     ],
-                    remainder='passthrough'  # In case there are columns not captured above
+                    remainder='passthrough'
                 )
-        
-                # Transform the selected features into numeric features
-                X_transformed = pd.DataFrame( preprocessor.fit_transform(X) , columns=data.columns() , index=False)
+                
+                X_transformed_array = preprocessor.fit_transform(X)
+                X_transformed = pd.DataFrame(X_transformed_array, index=X.index)
+
                 
                 # ---------------------- Model Evaluation Based On User's Selection ---------------------- #
                 if model_selection == "Linear Regression":
