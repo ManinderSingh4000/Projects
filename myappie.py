@@ -251,7 +251,7 @@ if file is not None:
         import seaborn as sns
         
         
-        if ml_task == "Linear Regression":
+        if model_selection == "Linear Regression":
             model = Pipeline(steps=[('preprocessor', preprocessor), ('regressor', LinearRegression())])
             model.fit(X_train, y_train)
             y_pred = model.predict(X_test)
@@ -269,7 +269,7 @@ if file is not None:
         from sklearn.preprocessing import PolynomialFeatures
         from sklearn.pipeline import make_pipeline
 
-        if ml_task == "Polynomial Regression":
+        if model_selection == "Polynomial Regression":
             degree = st.slider("Choose Degree", 2, 10, 2)
             model = make_pipeline(PolynomialFeatures(degree), LinearRegression())
             model.fit(X_train, y_train)
@@ -296,7 +296,7 @@ if file is not None:
 
         from mlxtend.plotting import plot_decision_regions
 
-        if ml_task == "SVM" and len(feature_cols) == 2:
+        if model_selection == "SVM" and len(feature_cols) == 2:
             X_combined = pd.concat([X_train, X_test])
             y_combined = pd.concat([y_train, y_test])
         
@@ -308,12 +308,12 @@ if file is not None:
 
         from sklearn.tree import plot_tree
 
-        if ml_task == "Decision Tree":
+        if model_selection == "Decision Tree":
             fig, ax = plt.subplots(figsize=(15, 10))
             plot_tree(model.named_steps['classifier'], filled=True, feature_names=feature_cols, class_names=True)
             st.pyplot(fig)
         
-        elif ml_task == "Random Forest":
+        elif model_selection == "Random Forest":
             fig, ax = plt.subplots(figsize=(15, 10))
             plot_tree(model.named_steps['classifier'].estimators_[0], filled=True, feature_names=feature_cols, class_names=True)
             st.pyplot(fig)
@@ -321,7 +321,7 @@ if file is not None:
         from sklearn.cluster import KMeans
         from sklearn.decomposition import PCA
         
-        if ml_task == "KMeans Clustering":
+        if model_selection == "KMeans Clustering":
             n_clusters = st.slider("Number of Clusters", 2, 10, 3)
             kmeans = KMeans(n_clusters=n_clusters)
             X_scaled = StandardScaler().fit_transform(X)
