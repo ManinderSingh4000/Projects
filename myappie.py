@@ -12,7 +12,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.cluster import KMeans
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OneHotEncoder, LabelEncoding, StandardScaler, PolynomialFeatures
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, StandardScaler, PolynomialFeatures
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline, make_pipeline
 
