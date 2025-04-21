@@ -219,13 +219,21 @@ if file is not None:
                         st.pyplot(fig)
                 
                 # Confusion Matrix for classifiers
-                if ml_task in ["SVM", "Decision Tree", "Logistic Regression", "K-Nearest Neighbors"]:
+                if ml_task in ["SVM", "Logistic Regression", "K-Nearest Neighbors"]:
                     cm = confusion_matrix(y_test, y_pred)
                     st.subheader("Confusion Matrix")
                     fig, ax = plt.subplots()
                     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
                     ax.set_xlabel('Predicted')
                     ax.set_ylabel('Actual')
+                    st.pyplot(fig)
+
+                
+                if ml_task in ["Decision Tree"] :
+                    model = DecisionTreeClassifier(max_depth=3)
+                    model.fit(X_combined, y_combined )
+                    fig, ax = plt.subplots(figsize=(12, 6))
+                    plot_tree(model, filled=True, fontsize=8)
                     st.pyplot(fig)
                     
        # ================== Model Evaluation Graphs Section ================== #
