@@ -27,7 +27,7 @@ st.set_page_config(
     page_icon='🔥'
 )
 
-st.title(":red[Data] :blue[Analytic] :orange[Portal & Machine Learning]")
+st.title(":red[Data] :blue[Analytic] :orange[ & Machine Learning Portal]")
 st.header(":rainbow[Explore Data With Ease]")
 
 # ================== File Upload Section ================== #
