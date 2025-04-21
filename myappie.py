@@ -729,4 +729,4 @@ if file is not None:
                     st.pyplot(fig_eval)
 
      except Exception as e:
-            st.error(f"An error occurred: {e}")
+                 st.error(f"An error occurred: {e}")
