@@ -726,4 +726,4 @@ if file is not None:
                     cm_eval = confusion_matrix(y_eval, y_pred_eval)
                     fig_eval, ax_eval = plt.subplots()
                     sns.heatmap(cm_eval, annot=True, fmt='d', cmap='Blues')
-                    st.pyplot(fig_eval
+                    st.pyplot(fig_eval)
