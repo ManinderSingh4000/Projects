@@ -330,5 +330,72 @@ if file is not None:
                                 plot_tree(model_eval.estimators_[i], filled=True, fontsize=6, feature_names=X_eval.columns) # Use original feature names if possible
                                 st.pyplot(fig_tree)
 
+                elif model_selection == "SVM":
+                    # SVM decision region visualization supports exactly 2 features
+                    if X_transformed_eval.shape[1] == 2:
+                        try:
+                            # Ensure inputs are NumPy arrays
+                            X_array_eval = X_transformed_eval if isinstance(X_transformed_eval, np.ndarray) else X_transformed_eval.to_numpy()
+                            y_array_eval = y_eval if isinstance(y_eval, np.ndarray) else y_eval.to_numpy().ravel()
+
+                            # Convert target to integers if needed (plot_decision_regions prefers int labels)
+                            if y_array_eval.dtype != int:
+                                y_array_eval = y_array_eval.astype(int)
+
+                            # Fit the SVM model
+                            model_eval_svm = SVC(kernel='linear')
+                            model_eval_svm.fit(X_array_eval, y_array_eval)
+
+                            # Plot decision regions
+                            fig_svm, ax_svm = plt.subplots()
+                            plot_decision_regions(X_array_eval, y_array_eval, clf=model_eval_svm, legend=2)
+                            ax_svm.set_xlabel(f'Feature 1 (Processed)') # Add meaningful labels
+                            ax_svm.set_ylabel(f'Feature 2 (Processed)')
+                            ax_svm.set_title(f"SVM Decision Regions")
+                            st.pyplot(fig_svm)
+                        except Exception as e:
+                            st.error(f"Error during SVM visualization: {e}")
+                    else:
+                        st.warning(f"SVM visualization supports only 2 features. Your selection resulted in {X_transformed_eval.shape[1]} features.")
+
+                elif model_selection == "KMeans Clustering":
+                    # KMeans is UNSUPERVISED: no target column needed
+                    feature_cols_kmeans = st.multiselect(
+                        "Select Feature Columns for KMeans",
+                        data.columns.tolist(),
+                        key='features_kmeans_eval'
+                    )
+
+                    if feature_cols_kmeans:
+                        X_kmeans = data[feature_cols_kmeans]
+
+                        # Apply any needed numeric/categorical transformations here
+                        X_transformed_kmeans_array = preprocessor_eval.fit_transform(X_kmeans)
+                        X_transformed_kmeans = pd.DataFrame(X_transformed_kmeans_array)
+
+                        k = st.slider("Select number of clusters (k) for KMeans", 2, 10, key='k_kmeans_eval')
+                        model_eval_kmeans = KMeans(n_clusters=k, random_state=42, n_init=10) # Added n_init for stability
+                        pred_kmeans = model_eval_kmeans.fit_predict(X_transformed_kmeans)
+
+                        # For a simple 2D scatter plot, we need at least two columns
+                        if len(feature_cols_kmeans) >= 2:
+                            fig_kmeans = px.scatter(
+                                x=X_kmeans[feature_cols_kmeans[0]],
+                                y=X_kmeans[feature_cols_kmeans[1]],
+                                color=pred_kmeans.astype(str),
+                                title=f"KMeans Clustering (k={k})"
+                            )
+                            st.plotly_chart(fig_kmeans)
+                        else:
+                            st.warning("Select at least 2 features for a 2D scatter plot of KMeans results.")
+                    else:
+                        st.warning("Select at least 2 features for KMeans visualization.")
+                else:
+                    st.info("Select feature columns for KMeans.")
+            else:
+                st.info("Select target and feature columns for model evaluation.")
+
     except Exception as e:
         st.error(f"An error occurred: {e}")
+
+
