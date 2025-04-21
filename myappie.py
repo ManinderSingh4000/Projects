@@ -728,5 +728,5 @@ if file is not None:
                     sns.heatmap(cm_eval, annot=True, fmt='d', cmap='Blues')
                     st.pyplot(fig_eval)
 
-             except Exception as e:
-                    st.error(f"An error occurred: {e}")
+     except Exception as e:
+            st.error(f"An error occurred: {e}")
