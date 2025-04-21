@@ -303,16 +303,12 @@ if file is not None:
                                             title="Polynomial Regression Fit")
                     st.plotly_chart(fig_eval)
 
-                elif model_selection == "Random Forest":
-                        n_estimators_view = min(5, model_eval.n_estimators)  # Show a maximum of 5 trees
-                        st.subheader(f"First {n_estimators_view} Trees in the Random Forest")
-                        fig_col = st.columns(n_estimators_view)
-                        for i in range(n_estimators_view):
-                            with fig_col[i]:
-                                st.subheader(f"Tree {i+1}")
-                                fig_tree, ax_tree = plt.subplots(figsize=(10, 5))
-                                plot_tree(model_eval.estimators_[i], filled=True, fontsize=6, feature_names=X_eval.columns) # Use original feature names if possible
-                                st.pyplot(fig_tree)
+                elif model_selection == "Decision Tree":
+                     model_eval = DecisionTreeClassifier(max_depth=3)
+                     model_eval.fit(X_transformed_eval, y_eval)
+                     fig_eval, ax_eval = plt.subplots(figsize=(12, 6))
+                     plot_tree(model_eval, filled=True, fontsize=8)
+                     st.pyplot(fig_eval)
 
                 elif model_selection == "Random Forest":
                     model_eval = RandomForestClassifier()
