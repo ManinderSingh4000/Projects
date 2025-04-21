@@ -243,7 +243,7 @@ if file is not None:
         # ================== Model Evaluation Graphs Section ================== #
         st.subheader(":orange[ Model Evaluation Graphs]")
         model_selection = st.selectbox('Select The Model',
-                                         ["Linear Regression", "Polynomial Regression", "Decision Tree", "Random Forest", "SVM", "KMeans Clustering"])
+                                         ["Linear Regression", "Polynomial Regression", "Decision Tree", "SVM", "KMeans Clustering"])
 
         if model_selection:
             target_col_eval = st.selectbox("Select Target Column", data.columns.tolist(), key='target_eval')
