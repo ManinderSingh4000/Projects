@@ -359,41 +359,40 @@ if file is not None:
                         st.warning(f"SVM visualization supports only 2 features. Your selection resulted in {X_transformed_eval.shape[1]} features.")
 
                 elif model_selection == "KMeans Clustering":
-                    # KMeans is UNSUPERVISED: no target column needed
-                    feature_cols_kmeans = st.multiselect(
-                        "Select Feature Columns for KMeans",
+                    feature_cols = st.multiselect(
+                        "Select Feature Columns",
                         data.columns.tolist(),
-                        key='features_kmeans_eval'
+                        key='features_kmeans'
                     )
-
-                    if feature_cols_kmeans:
-                        X_kmeans = data[feature_cols_kmeans]
-
-                        # Apply any needed numeric/categorical transformations here
-                        X_transformed_kmeans_array = preprocessor_eval.fit_transform(X_kmeans)
-                        X_transformed_kmeans = pd.DataFrame(X_transformed_kmeans_array)
-
-                        k = st.slider("Select number of clusters (k) for KMeans", 2, 10, key='k_kmeans_eval')
-                        model_eval_kmeans = KMeans(n_clusters=k, random_state=42, n_init=10) # Added n_init for stability
-                        pred_kmeans = model_eval_kmeans.fit_predict(X_transformed_kmeans)
-
+                    
+                    if feature_cols:
+                        X = data[feature_cols]
+                        
+#                         # Apply any needed numeric/categorical transformations here
+#                         # e.g. preprocessor.fit_transform(X)
+            
+                        k = st.slider("Select number of clusters (k)", 2, 10 )
+                        model = KMeans(n_clusters=k)
+                        pred = model.fit_predict(X)
+            
                         # For a simple 2D scatter plot, we need at least two columns
-                        if len(feature_cols_kmeans) >= 2:
-                            fig_kmeans = px.scatter(
-                                x=X_kmeans[feature_cols_kmeans[0]],
-                                y=X_kmeans[feature_cols_kmeans[1]],
-                                color=pred_kmeans.astype(str),
-                                title=f"KMeans Clustering (k={k})"
+                        if len(feature_cols) >= 2:
+                            fig = px.scatter(
+                                x=X[feature_cols[0]],
+                                y=X[feature_cols[1]],
+                                color=pred.astype(str),
+                                title="KMeans Clustering"
                             )
-                            st.plotly_chart(fig_kmeans)
+                            st.plotly_chart(fig)
                         else:
-                            st.warning("Select at least 2 features for a 2D scatter plot of KMeans results.")
-                    else:
-                        st.warning("Select at least 2 features for KMeans visualization.")
-                else:
-                    st.info("Select feature columns for KMeans.")
-            else:
-                st.info("Select target and feature columns for model evaluation.")
+                            st.warning("Select at least 2 features for a 2D scatter plot.")
+                            st.plotly_chart(fig_kmeans)
+            #         else:
+            #             st.warning("Select at least 2 features for KMeans visualization.")
+            #     else:
+            #         st.info("Select feature columns for KMeans.")
+            # else:
+            #     st.info("Select target and feature columns for model evaluation.")
 
     except Exception as e:
         st.error(f"An error occurred: {e}")
