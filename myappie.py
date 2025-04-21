@@ -727,3 +727,6 @@ if file is not None:
                     fig_eval, ax_eval = plt.subplots()
                     sns.heatmap(cm_eval, annot=True, fmt='d', cmap='Blues')
                     st.pyplot(fig_eval)
+
+             except Exception as e:
+                    st.error(f"An error occurred: {e}")
