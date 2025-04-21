@@ -320,15 +320,17 @@ if file is not None:
                 #     st.pyplot(fig_eval)
 
                 elif model_selection == "Random Forest":
-                        n_estimators_view = min(5, model_eval.n_estimators)  # Show a maximum of 5 trees
-                        st.subheader(f"First {n_estimators_view} Trees in the Random Forest")
-                        fig_col = st.columns(n_estimators_view)
-                        for i in range(n_estimators_view):
-                            with fig_col[i]:
-                                st.subheader(f"Tree {i+1}")
-                                fig_tree, ax_tree = plt.subplots(figsize=(10, 5))
-                                plot_tree(model_eval.estimators_[i], filled=True, fontsize=6, feature_names=X_eval.columns) # Use original feature names if possible
-                                st.pyplot(fig_tree)
+                    # k = st.slider("Select number of clusters (k)", 2, 10 )
+
+                    n_estimators_view = min(5, model_eval.n_estimators)  # Show a maximum of 5 trees
+                    st.subheader(f"First {n_estimators_view} Trees in the Random Forest")
+                    fig_col = st.columns(n_estimators_view)
+                    for i in range(n_estimators_view):
+                        with fig_col[i]:
+                            st.subheader(f"Tree {i+1}")
+                            fig_tree, ax_tree = plt.subplots(figsize=(10, 5))
+                            plot_tree(model_eval.estimators_[i], filled=True, fontsize=6, feature_names=X_eval.columns) # Use original feature names if possible
+                            st.pyplot(fig_tree)
 
                 elif model_selection == "SVM":
                     # SVM decision region visualization supports exactly 2 features
