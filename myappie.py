@@ -209,7 +209,7 @@ if file is not None:
                 st.write(f"Model Accuracy: {acc * 100:.2f}%")
                 
                 # Decision regions (only if exactly 2 features are used)
-                if ml_task in ["SVM", "Decision Tree"] and len(feature_cols) == 2:
+                if ml_task in ["SVM"] and len(feature_cols) == 2:
                     if st.checkbox("Show Decision Regions"):
                         X_combined = pd.concat([X_train, X_test])
                         y_combined = pd.concat([y_train, y_test])
@@ -229,7 +229,7 @@ if file is not None:
                     st.pyplot(fig)
                     
        # ================== Model Evaluation Graphs Section ================== #
-        st.subheader(":orange[bar_chart: Model Evaluation Graphs]")
+        st.subheader(":orange[ Model Evaluation Graphs]")
         model_selection = st.selectbox('Select The Model', 
                                        ["Linear Regression", "Polynomial Regression", "Decision Tree", "Random Forest", "SVM", "KMeans Clustering" ])
         
