@@ -320,12 +320,14 @@ if file is not None:
                 #     st.pyplot(fig_eval)
 
                 elif model_selection == "Random Forest":
-                    # k = st.slider("Select number of clusters (k)", 2, 10 )
+                    k_estimators = st.slider("Select number of clusters (k)", 2, 10 )
+                    model_eval = RandomForestClassifier(n_estimators=k_estimators)
+                    model_eval.fit(X_transformed ,y_eval)
 
-                    n_estimators_view = min(5, model_eval.n_estimators)  # Show a maximum of 5 trees
+                    # n_estimators_view = min(5, model_eval.n_estimators)  # Show a maximum of 5 trees
                     st.subheader(f"First {n_estimators_view} Trees in the Random Forest")
-                    fig_col = st.columns(n_estimators_view)
-                    for i in range(n_estimators_view):
+                    # fig_col = st.columns(n_estimators_view)
+                    for i in range(model_eval.estimators_):
                         with fig_col[i]:
                             st.subheader(f"Tree {i+1}")
                             fig_tree, ax_tree = plt.subplots(figsize=(10, 5))
@@ -369,9 +371,6 @@ if file is not None:
                     
                     if feature_cols:
                         X = data[feature_cols]
-                        
-#                         # Apply any needed numeric/categorical transformations here
-#                         # e.g. preprocessor.fit_transform(X)
             
                         k = st.slider("Select number of clusters (k)", 2, 10 )
                         model = KMeans(n_clusters=k)
